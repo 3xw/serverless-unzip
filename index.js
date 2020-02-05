@@ -3,7 +3,8 @@
 const
   store = require('./src/stores/root.js'),
   {download, testDestination, readzip, tick} = require('./src/actions/downloadUnzipUpload.js'),
-  emptyDirectory = require('./src/actions/deletion.js'),
+  {emptyDirectory, deleteSource} = require('./src/actions/deletion.js'),
+  {sendTopic} = require('./src/actions/sns.js'),
 
   // app flow
   subscribtion = store.subscribe(() =>
@@ -24,7 +25,14 @@ const
       case 'UPLOAD_SKIP':
       case 'UPLOAD_SUCCESS': return store.dispatch(tick())
       // 6
-      case 'UPLOAD_FINISHED': process.exit(0)
+      case 'UPLOAD_FINISHED':
+      if(store.getState().deleteSrc) return store.dispatch(deleteSource())
+
+      case 'DELETE_SOURCE_SUCCESS':
+      if(store.getState().topic && store.getState().message) return store.dispatch(sendTopic())
+
+      case 'SNS_SUCCESS':
+      process.exit(0)
     }
   })
 

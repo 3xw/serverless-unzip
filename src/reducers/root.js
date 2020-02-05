@@ -10,7 +10,9 @@ const
     bucket: '',
     tmpZipPath: '',
     filesToDelete: [],
-    zipEntries: []
+    zipEntries: [],
+    topic: '',
+    message: ''
   },
   rootReducer = function(state = initialState, action)
   {
@@ -37,6 +39,8 @@ const
         src: profile.prefix? profile.prefix+'/'+merged.src: merged.src,
         replaceDest: merged.replaceDest,
         deleteSrc: merged.deleteSrc,
+        topic: merged.topic,
+        message: merged.message,
         bucket: profile.container
       }
 
