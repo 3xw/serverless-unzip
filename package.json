@@ -1,0 +1,29 @@
+{
+  "name": "serverless-zip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3xw/serverless-zip.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/3xw/serverless-unzip/issues"
+  },
+  "homepage": "https://github.com/3xw/serverless-unzip#readme",
+  "dependencies": {
+    "adm-zip": "^0.4.13",
+    "aws-sdk": "^2.576.0",
+    "chalk": "^3.0.0",
+    "date-time": "^3.1.0",
+    "md5": "^2.2.1",
+    "mime-types": "^2.1.26",
+    "redux": "^4.0.4",
+    "redux-thunk": "^2.3.0"
+  }
+}
