@@ -8,7 +8,7 @@ emptyDirectory = function()
 {
   return (dispatch, getState) =>
   {
-    dispatch({ type: 'EMPTY_DIRECTORY' })
+    dispatch({ type: 'DELETE_DESTINATION_START' })
 
     let params = {
       Bucket: getState().bucket,
@@ -19,15 +19,17 @@ emptyDirectory = function()
 
     getState().filesToDelete.forEach(function(content)
     {
-      params.Delete.Objects.push({Key: content.Key});
+      params.Delete.Objects.push({
+        Key: content.Key
+      })
     })
 
     s3.deleteObjects(
       params,
       function(err, data)
       {
-        if (err) return callback(err);
-        if(data.Contents.length == 1000) dispatch({ type: 'DELETE_DESTINATION' })
+        if (err) throw err
+        if(getState().filesToDelete.length == 1000) dispatch({ type: 'TEST_DESTINATION'})
         else dispatch({ type: 'DESTINATION_OK' })
       }
     )

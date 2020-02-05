@@ -9,7 +9,8 @@ const
     deleteSrc: false,
     bucket: '',
     tmpZipPath: '',
-    filesToDelete: []
+    filesToDelete: [],
+    zipEntries: []
   },
   rootReducer = function(state = initialState, action)
   {
@@ -46,6 +47,17 @@ const
 
       case 'DESTINATION_EXISTS':
       return Object.assign({}, state, {filesToDelete: state.action.filesToDelete})
+
+      case 'ZIP_READ_SUCCESS':
+      return Object.assign({}, state, {zipEntries: state.action.zipEntries})
+
+      case 'UPLOAD_START':
+      console.log(chalk.blue('  * unzip and upload file:', state.action.filename))
+      return state
+
+      case 'UPLOAD_SUCCESS':
+      console.log(chalk.green('  * upload success file:', state.action.filename))
+      return state
 
       default:
       return state

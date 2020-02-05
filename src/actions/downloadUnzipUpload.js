@@ -9,21 +9,30 @@ mime = require('mime-types'),
 s3 = new aws.S3(),
 fs = require('fs'),
 
-unzip = function()
+upload = function(zipEntry)
 {
   return (dispatch, getState) =>
   {
-    dispatch({ type: 'UNZIP_START' })
+    if(zipEntry.entryName.lastIndexOf('__MACOSX') != -1) return dispatch({ type: 'UPLOAD_SKIP', filename: zipEntry.entryName })
 
-  }
-},
+    dispatch({ type: 'UPLOAD_START', filename: zipEntry.entryName })
 
-upload = function()
-{
-  return (dispatch, getState) =>
-  {
-    dispatch({ type: 'UNZIP_START' })
+    let
+    src = zipEntry.entryName,
+    path = src.substring(src.indexOf('/') + 1)
 
+    s3.upload(
+      {
+        Bucket: getState().bucket,
+        Key: getState().dest+'/'+path,
+        Body: zipEntry.getData()
+      },
+      function(err, data)
+      {
+        if(err) throw err
+        dispatch({ type: 'UPLOAD_SUCCESS', filename: zipEntry.entryName })
+      }
+    )
   }
 },
 
@@ -31,8 +40,35 @@ tick = function()
 {
   return (dispatch, getState) =>
   {
-    dispatch({ type: 'UPLOAD_TICK' })
+    dispatch({ type: 'TICK' })
+    if(getState().zipEntries.length == 0)
+    {
+      fs.unlinkSync(getState().tmpZipPath)
+      return dispatch({ type: 'UPLOAD_FINISHED'})
+    }
 
+    dispatch(upload(getState().zipEntries.shift()))
+  }
+},
+
+readzip = function()
+{
+  return (dispatch, getState) =>
+  {
+    dispatch({ type: 'ZIP_READ_START' })
+
+    // archive reader
+    let zip = new AdmZip(getState().tmpZipPath)
+
+    // chek content
+    if (zip.getEntries().length === 0)
+    {
+      fs.unlinkSync(getState().tmpZipPath)
+      dispatch({ type: 'UNZIP_EMPTY_FILE' })
+      throw new Error({message: 'Empty zip file'})
+    }
+
+    dispatch({ type: 'ZIP_READ_SUCCESS',  zipEntries: zip.getEntries()})
   }
 },
 
@@ -49,11 +85,7 @@ testDestination = function()
       },
       function(err, data)
       {
-        if(err || data.Contents.length == 0)
-        {
-          dispatch({ type: 'DESTINATION_OK'})
-          return dispatch(tick())
-        }
+        if(err || data.Contents.length == 0) return dispatch({ type: 'DESTINATION_OK'})
 
         // destination exists
         dispatch({ type: 'DESTINATION_EXISTS', filesToDelete: data.Contents })
@@ -87,14 +119,20 @@ download = function()
         // write file
         fs.writeFileSync(tmpZipPath, data.Body)
 
+        //check that file in that location is a zip content type, otherwise throw error and exit
+       	if (mime.lookup(tmpZipPath) !== 'application/zip')
+        {
+          // delete file
+          fs.unlinkSync(tmpZipPath)
+          dispatch({ type: 'DOWNLOAD_WRONG_FILE_TYPE' })
+          throw new Error({message: 'File is not a zip'})
+       	}
+
         // tell it's ok
         dispatch({ type: 'DOWNLOAD_SUCCESS', tmpZipPath })
-
-        // test destination
-        return dispatch(testDestination())
       }
     )
   }
 }
 
-module.exports = download
+module.exports = {download, testDestination, readzip, tick}
