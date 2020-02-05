@@ -1,42 +1,37 @@
 const
-  store = require('../stores/root.js'),
-  chalk = require('chalk'),
-  aws = require('aws-sdk'),
-  s3 = new aws.S3(),
+store = require('../stores/root.js'),
+chalk = require('chalk'),
+aws = require('aws-sdk'),
+s3 = new aws.S3(),
 
-  deleteFile = function()
+emptyDirectory = function()
+{
+  return (dispatch, getState) =>
   {
-    return (dispatch, getState) =>
-    {
-      dispatch({ type: 'DELETE_START' })
+    dispatch({ type: 'EMPTY_DIRECTORY' })
 
+    let params = {
+      Bucket: getState().bucket,
+      Delete: {
+        Objects:[]
+      }
     }
-  },
 
-  emptyDirectory = function()
-  {
-    return (dispatch, getState) =>
+    getState().filesToDelete.forEach(function(content)
     {
-      dispatch({ type: 'EMPTY_DIRECTORY_START' })
+      params.Delete.Objects.push({Key: content.Key});
+    })
 
-    }
-  },
-
-  tick = function()
-  {
-    return (dispatch, getState) =>
-    {
-      dispatch({ type: 'DELETE_TICK' })
-
-    }
-  },
-
-  init = function()
-  {
-    return (dispatch, getState) =>
-    {
-      dispatch({ type: 'INIT_DELETE' })
-    }
+    s3.deleteObjects(
+      params,
+      function(err, data)
+      {
+        if (err) return callback(err);
+        if(data.Contents.length == 1000) dispatch({ type: 'DELETE_DESTINATION' })
+        else dispatch({ type: 'DESTINATION_OK' })
+      }
+    )
   }
+}
 
-module.exports = init
+module.exports = emptyDirectory

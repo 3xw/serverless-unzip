@@ -31,7 +31,7 @@ const
       let
       profile = config[data.project].profiles[data.profile],
       merged = Object.assign({}, state, data),
-      config = {
+      obj = {
         dest: profile.prefix? profile.prefix+'/'+merged.dest: merged.dest,
         src: profile.prefix? profile.prefix+'/'+merged.src: merged.src,
         replaceDest: merged.replaceDest,
@@ -39,7 +39,7 @@ const
         bucket: profile.container
       }
 
-      return Object.assign({}, state, config)
+      return Object.assign({}, state, obj)
 
       case 'DOWNLOAD_SUCCESS':
       return Object.assign({}, state, {tmpZipPath: state.action.tmpZipPath})

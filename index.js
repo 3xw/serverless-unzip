@@ -3,6 +3,7 @@
 const
   store = require('./src/stores/root.js'),
   initDownload = require('./src/actions/downloadUnzipUpload.js'),
+  initDeletion = require('./src/actions/deletion.js'),
 
   // app flow
   subscribtion = store.subscribe(() =>
@@ -12,8 +13,7 @@ const
       // 1
       case 'INIT': return store.dispatch(initDownload())
       // 2
-
-      //store.getState().callback(null, store.getState())
+      case 'DELETE_DESTINATION': return store.dispatch(initDeletion())
     }
   })
 

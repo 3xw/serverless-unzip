@@ -45,18 +45,18 @@ testDestination = function()
     s3.listObjects(
       {
         Bucket: getState().bucket,
-        Key: getState().dest
+        Prefix: getState().dest
       },
       function(err, data)
       {
         if(err || data.Contents.length == 0)
         {
-          dispatch({ type: 'DESTINATION_OK' })
+          dispatch({ type: 'DESTINATION_OK'})
           return dispatch(tick())
         }
 
         // destination exists
-        dispatch({ type: 'DESTINATION_EXISTS' })
+        dispatch({ type: 'DESTINATION_EXISTS', filesToDelete: data.Contents })
 
         if(!getState().replaceDest) throw new Error({message: 'Destination exists, replaceDest is set to false: -> execution abortion.'})
         else dispatch({ type: 'DELETE_DESTINATION' })
