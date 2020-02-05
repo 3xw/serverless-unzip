@@ -3,6 +3,13 @@ const
   chalk = require('chalk'),
   initialState =
   {
+    dest: '',
+    src: '',
+    replaceDest: true,
+    deleteSrc: false,
+    bucket: '',
+    tmpZipPath: '',
+    filesToDelete: []
   },
   rootReducer = function(state = initialState, action)
   {
@@ -14,11 +21,31 @@ const
     {
       case 'INIT':
       let data = JSON.parse(action.event.Records[0].Sns.Message)
+
+      // check config
       if(!config.hasOwnProperty(data.project)) throw new Error({message: 'Project not found'})
       if(!config[data.project].profiles.hasOwnProperty(data.profile)) throw new Error({message: 'Profile not found'})
+      if(!data.src) throw new Error({message: 'No src file given'})
 
-      return Object.assign({}, state, {})
+      // merge
+      let
+      profile = config[data.project].profiles[data.profile],
+      merged = Object.assign({}, state, data),
+      config = {
+        dest: profile.prefix? profile.prefix+'/'+merged.dest: merged.dest,
+        src: profile.prefix? profile.prefix+'/'+merged.src: merged.src,
+        replaceDest: merged.replaceDest,
+        deleteSrc: merged.deleteSrc,
+        bucket: profile.container
+      }
 
+      return Object.assign({}, state, config)
+
+      case 'DOWNLOAD_SUCCESS':
+      return Object.assign({}, state, {tmpZipPath: state.action.tmpZipPath})
+
+      case 'DESTINATION_EXISTS':
+      return Object.assign({}, state, {filesToDelete: state.action.filesToDelete})
 
       default:
       return state

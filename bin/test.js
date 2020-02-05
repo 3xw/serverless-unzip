@@ -11,7 +11,7 @@ handler({
   "Records": [
     {
       "Sns": {
-        "Message": "{\r\n\"id\": 1,\r\n\"project\": \"ofrou\",\r\n\"profile\": \"default\"\r\n}",
+        "Message": "{\r\n\"src\": \"archives/1580893306_archive.zip\",\r\n\"dest\": \"modules/00\",\r\n\"project\": \"pocus\",\r\n\"profile\": \"default\"\r\n}",
       }
     }
   ]
