@@ -1,4 +1,4 @@
-service: serverless-zip
+service: serverless-unzip
 
 package:
   exclude:
