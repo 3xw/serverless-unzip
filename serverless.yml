@@ -7,7 +7,7 @@ package:
 provider:
   name: aws
   stage: ${opt:stage,'dev'}
-  runtime: nodejs10.x
+  runtime: nodejs14.x
   memorySize: 1024 # optional, in MB, default is 1024
   timeout: 120 # optional, in seconds, default is 6
   role: arn:aws:iam::207326856266:role/LambdaGodFather
@@ -29,4 +29,4 @@ functions:
     events:
       - sns: arn:aws:sns:eu-central-1:207326856266:serverless-unzip--${self:provider.stage}
     layers:
-      - arn:aws:lambda:eu-central-1:207326856266:layer:unzip-node:2
+      - arn:aws:lambda:eu-central-1:207326856266:layer:unzip-node:3
